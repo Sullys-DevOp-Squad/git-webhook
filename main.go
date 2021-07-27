@@ -59,6 +59,23 @@ func ProtectRepoHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	//now, create issue ticket on repo to inform branch protection was added
+	title := "Branch Policies added to repository"
+	body := "Protecting main branch with required status check policy"
+	assignee := "ssulei7"
+
+	_, issueResp, err := client.Issues.Create(context.Background(), *req.Repo.Owner.Login, *req.Repo.Name, &github.IssueRequest{
+		Title:    &title,
+		Body:     &body,
+		Assignee: &assignee,
+	})
+
+	if issueResp.StatusCode != http.StatusCreated {
+		w.Write([]byte(err.Error()))
+		w.WriteHeader(issueResp.StatusCode)
+		return
+	}
+
 }
 
 func main() {
