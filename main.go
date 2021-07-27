@@ -43,6 +43,22 @@ func ProtectRepoHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	//begin creating branch policies with the client
+	protectionRequest := &github.ProtectionRequest{
+		RequiredStatusChecks: &github.RequiredStatusChecks{
+			Strict:   true,
+			Contexts: []string{"continuous-integration"},
+		},
+	}
+
+	_, resp, err := client.Repositories.UpdateBranchProtection(context.Background(), *req.Repo.Owner.Login, *req.Repo.Name, "main", protectionRequest)
+
+	if resp.StatusCode != http.StatusOK {
+		w.Write([]byte(err.Error()))
+		w.WriteHeader(resp.StatusCode)
+		return
+	}
+
 }
 
 func main() {
