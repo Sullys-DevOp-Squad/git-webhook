@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 	"os"
 
@@ -22,6 +23,25 @@ func init() {
 }
 
 func ProtectRepoHandler(w http.ResponseWriter, r *http.Request) {
+
+	req := github.WebHookPayload{}
+	err := json.NewDecoder(r.Body).Decode(&req)
+
+	//read json payload
+	defer r.Body.Close()
+
+	if err != nil {
+		w.Write([]byte("Event did not parse correctly"))
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	//check if event is not of type repo created
+	if *req.Action != "created" {
+		w.Write([]byte("Event did not parse correctly"))
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
 
 }
 
